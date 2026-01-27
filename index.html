@@ -3,9 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Music Player</title>
+    <title>Nhạc Của Quyền</title>
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#1db954">
+    <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/3321/3321935.png">
+    
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
     <style>
         :root { --primary-color: #1db954; --text-color: #fff; }
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -45,7 +50,14 @@
     <audio id="audio"></audio>
 
     <script>
-        // DANH SÁCH 10 BÀI HÁT CỦA BẠN (Đã sửa đúng tên file)
+        // --- 1. KÍCH HOẠT PWA (APP) ---
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('sw.js')
+                .then(() => console.log('Service Worker đã chạy!'))
+                .catch((error) => console.log('Lỗi SW:', error));
+        }
+
+        // --- 2. DANH SÁCH 10 BÀI HÁT ---
         const songs = [
             { name: 'Bài 1', artist: 'Artist 1', src: 'music/song1.mp3', color: '#8e44ad' },
             { name: 'Bài 2', artist: 'Artist 2', src: 'music/song2.mp3', color: '#2980b9' },
@@ -59,6 +71,7 @@
             { name: 'Bài 10', artist: 'Artist 10', src: 'music/song10.mp3', color: '#27ae60' }
         ];
 
+        // --- 3. LOGIC PHÁT NHẠC ---
         const playerContainer = document.getElementById('player-container');
         const playBtn = document.getElementById('play');
         const prevBtn = document.getElementById('prev');
@@ -77,7 +90,7 @@
             title.innerText = song.name;
             artist.innerText = song.artist;
             audio.src = song.src;
-            // Dùng ảnh mặc định online để tránh lỗi
+            // Dùng ảnh online mặc định
             cover.src = 'https://cdn-icons-png.flaticon.com/512/3321/3321935.png';
             document.body.style.background = `linear-gradient(to bottom, ${song.color}, #121212)`;
         }
@@ -133,7 +146,7 @@
 
         audio.addEventListener('ended', nextSong);
 
-        // Chạy ngay bài đầu tiên
+        // Chạy bài đầu tiên
         loadSong(songs[songIndex]);
     </script>
 </body>

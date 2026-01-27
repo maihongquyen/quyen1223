@@ -1,0 +1,15 @@
+{
+  "name": "Nhạc Của Quyền",
+  "short_name": "QuyenMusic",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#121212",
+  "theme_color": "#1db954",
+  "icons": [
+    {
+      "src": "https://cdn-icons-png.flaticon.com/512/3321/3321935.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
