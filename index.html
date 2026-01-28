@@ -6,7 +6,8 @@
     <title>Nhạc Của Quyền</title>
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#1db954">
-    <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/3321/3321935.png">
+    
+    <link rel="apple-touch-icon" href="images/icon-app.png">
     
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
@@ -90,7 +91,6 @@
             title.innerText = song.name;
             artist.innerText = song.artist;
             audio.src = song.src;
-            // Dùng ảnh online mặc định
             cover.src = 'https://cdn-icons-png.flaticon.com/512/3321/3321935.png';
             document.body.style.background = `linear-gradient(to bottom, ${song.color}, #121212)`;
         }
