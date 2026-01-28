@@ -1,5 +1,5 @@
 {
-  "name": "Nhạc Của Quyền",
+  "name": "Nhạc Của Quyền Pro",
   "short_name": "QuyenMusic",
   "start_url": "./index.html",
   "display": "standalone",
@@ -7,9 +7,7 @@
   "theme_color": "#1db954",
   "icons": [
     {
-      // 👇 ĐÃ SỬA DÒNG NÀY: Trỏ về file icon trong thư mục images
       "src": "images/icon-app.png",
-      // Nếu ảnh của bạn không phải 512x512, hãy sửa lại số này cho đúng (ví dụ "192x192")
       "sizes": "512x512",
       "type": "image/png"
     }

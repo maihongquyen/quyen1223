@@ -1,4 +1,4 @@
-const CACHE_NAME = 'quyen-music-v1';
+const CACHE_NAME = 'quyen-music-pro-v2';
 const ASSETS = [
     './',
     './index.html',

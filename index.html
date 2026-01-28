@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nhạc Của Quyền</title>
+    <title>Nhạc Của Quyền Pro</title>
+    
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#1db954">
-    
     <link rel="apple-touch-icon" href="images/icon-app.png">
     
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
@@ -15,24 +15,108 @@
     <style>
         :root { --primary-color: #1db954; --text-color: #fff; }
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Inter', sans-serif; background: #121212; color: var(--text-color); display: flex; justify-content: center; align-items: center; min-height: 100vh; transition: background 0.5s ease; }
-        .player-container { background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.1); width: 350px; padding: 30px; border-radius: 20px; box-shadow: 0 15px 30px rgba(0,0,0,0.5); text-align: center; position: relative; }
-        .img-container { width: 180px; height: 180px; margin: 0 auto 20px; border-radius: 50%; overflow: hidden; border: 5px solid rgba(255,255,255,0.1); animation: rotatePlayer 10s linear infinite; animation-play-state: paused; }
-        .img-container.playing { animation-play-state: running; }
+        
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background: #121212; 
+            color: var(--text-color); 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            min-height: 100vh; 
+            overflow: hidden; 
+            position: relative; 
+        }
+        
+        /* Màn hình Canvas cho sóng nhạc */
+        #visualizer-canvas { 
+            position: absolute; 
+            top: 0; left: 0; 
+            width: 100%; height: 100%; 
+            z-index: 0; 
+            opacity: 0.8; 
+        }
+
+        /* Khung Player (nổi lên trên sóng nhạc) */
+        .player-container { 
+            position: relative; 
+            z-index: 10;
+            background: rgba(255, 255, 255, 0.1); 
+            backdrop-filter: blur(20px); 
+            -webkit-backdrop-filter: blur(20px); 
+            border: 1px solid rgba(255, 255, 255, 0.2); 
+            width: 350px; 
+            padding: 30px; 
+            border-radius: 30px; 
+            box-shadow: 0 25px 50px rgba(0,0,0,0.6); 
+            text-align: center; 
+        }
+
+        .img-container { 
+            width: 200px; height: 200px; 
+            margin: 0 auto 25px; 
+            border-radius: 50%; 
+            overflow: hidden; 
+            border: 4px solid rgba(255,255,255,0.1); 
+            animation: rotatePlayer 15s linear infinite; 
+            animation-play-state: paused; 
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5); 
+            transition: all 0.3s ease;
+        }
+
+        .img-container.playing { 
+            animation-play-state: running; 
+            box-shadow: 0 0 30px rgba(29, 185, 84, 0.6); /* Hào quang khi hát */
+        }
+        
         .img-container img { width: 100%; height: 100%; object-fit: cover; }
-        h2 { font-size: 22px; margin-bottom: 5px; font-weight: 700; }
-        h3 { font-size: 14px; color: #b3b3b3; margin-bottom: 25px; }
-        .progress-container { background: rgba(255,255,255,0.1); border-radius: 5px; cursor: pointer; margin-bottom: 30px; height: 6px; width: 100%; }
-        .progress { background: var(--primary-color); border-radius: 5px; height: 100%; width: 0%; transition: width 0.1s linear; }
-        .controls { display: flex; justify-content: space-between; align-items: center; width: 70%; margin: 0 auto; }
-        .btn { background: none; border: none; color: #b3b3b3; font-size: 24px; cursor: pointer; transition: 0.2s; }
-        .btn:hover { color: #fff; transform: scale(1.1); }
-        .btn-big { font-size: 50px; color: #fff; background: var(--primary-color); width: 70px; height: 70px; border-radius: 50%; display: flex; justify-content: center; align-items: center; box-shadow: 0 5px 15px rgba(29, 185, 84, 0.4); }
-        .btn-big:hover { transform: scale(1.05); }
+        
+        h2 { font-size: 24px; margin-bottom: 8px; font-weight: 700; letter-spacing: 0.5px; text-shadow: 0 2px 4px rgba(0,0,0,0.5); }
+        h3 { font-size: 15px; color: #ddd; margin-bottom: 30px; font-weight: 400; }
+        
+        .progress-container { 
+            background: rgba(255,255,255,0.15); 
+            border-radius: 10px; 
+            cursor: pointer; 
+            margin-bottom: 35px; 
+            height: 8px; 
+            width: 100%; 
+            overflow: hidden; 
+        }
+        
+        .progress { 
+            background: var(--primary-color); 
+            border-radius: 10px; 
+            height: 100%; 
+            width: 0%; 
+            transition: width 0.1s linear; 
+            box-shadow: 0 0 10px var(--primary-color); 
+        }
+        
+        .controls { display: flex; justify-content: space-around; align-items: center; width: 85%; margin: 0 auto; }
+        
+        .btn { background: none; border: none; color: #ddd; font-size: 28px; cursor: pointer; transition: 0.3s; }
+        .btn:hover { color: #fff; transform: scale(1.2); }
+        
+        .btn-big { 
+            font-size: 50px; 
+            color: #fff; 
+            background: var(--primary-color); 
+            width: 80px; height: 80px; 
+            border-radius: 50%; 
+            display: flex; justify-content: center; align-items: center; 
+            box-shadow: 0 10px 30px rgba(29, 185, 84, 0.5); 
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
+        }
+        .btn-big:hover { transform: scale(1.1); background: #1ed760; box-shadow: 0 15px 40px rgba(29, 185, 84, 0.7); }
+        .btn-big:active { transform: scale(0.95); }
+
         @keyframes rotatePlayer { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
     </style>
 </head>
 <body>
+    <canvas id="visualizer-canvas"></canvas>
+
     <div class="player-container" id="player-container">
         <div class="img-container" id="img-container">
             <img src="https://cdn-icons-png.flaticon.com/512/3321/3321935.png" alt="Cover" id="cover">
@@ -48,17 +132,18 @@
             <button class="btn" id="next"><i class="fas fa-step-forward"></i></button>
         </div>
     </div>
-    <audio id="audio"></audio>
+    
+    <audio id="audio" crossorigin="anonymous"></audio>
 
     <script>
-        // --- 1. KÍCH HOẠT PWA (APP) ---
+        // --- 1. KÍCH HOẠT PWA ---
         if ('serviceWorker' in navigator) {
             navigator.serviceWorker.register('sw.js')
-                .then(() => console.log('Service Worker đã chạy!'))
-                .catch((error) => console.log('Lỗi SW:', error));
+                .then(() => console.log('Service Worker OK'))
+                .catch((err) => console.log('SW Fail', err));
         }
 
-        // --- 2. DANH SÁCH 10 BÀI HÁT ---
+        // --- 2. DANH SÁCH BÀI HÁT (10 Bài) ---
         const songs = [
             { name: 'Bài 1', artist: 'Artist 1', src: 'music/song1.mp3', color: '#8e44ad' },
             { name: 'Bài 2', artist: 'Artist 2', src: 'music/song2.mp3', color: '#2980b9' },
@@ -72,7 +157,7 @@
             { name: 'Bài 10', artist: 'Artist 10', src: 'music/song10.mp3', color: '#27ae60' }
         ];
 
-        // --- 3. LOGIC PHÁT NHẠC ---
+        // --- 3. KHAI BÁO BIẾN ---
         const playerContainer = document.getElementById('player-container');
         const playBtn = document.getElementById('play');
         const prevBtn = document.getElementById('prev');
@@ -84,18 +169,91 @@
         const artist = document.getElementById('artist');
         const cover = document.getElementById('cover');
         const imgContainer = document.getElementById('img-container');
+        const canvas = document.getElementById('visualizer-canvas');
+        const ctx = canvas.getContext('2d');
 
         let songIndex = 0;
+        
+        // Biến cho Visualizer
+        let audioContext, analyser, source;
+        let isAudioContextSetup = false;
 
+        // --- 4. HÀM XỬ LÝ VISUALIZER (SÓNG NHẠC) ---
+        function setupAudioContext() {
+            if (isAudioContextSetup) return;
+            audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            analyser = audioContext.createAnalyser();
+            source = audioContext.createMediaElementSource(audio);
+            source.connect(analyser);
+            analyser.connect(audioContext.destination);
+            analyser.fftSize = 256;
+            isAudioContextSetup = true;
+        }
+
+        function drawVisualizer() {
+            requestAnimationFrame(drawVisualizer);
+            
+            // Nếu AudioContext chưa chạy thì không vẽ
+            if (!analyser) return;
+
+            const bufferLength = analyser.frequencyBinCount;
+            const dataArray = new Uint8Array(bufferLength);
+            analyser.getByteFrequencyData(dataArray);
+
+            // Xóa canvas để vẽ khung hình mới
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Vẽ đè một lớp màu nền mờ để tạo hiệu ứng "đuôi" sóng
+            ctx.fillStyle = songs[songIndex].color || '#121212';
+            ctx.globalAlpha = 0.2; // Độ trong suốt nền
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.globalAlpha = 1.0; // Trả lại độ rõ cho sóng
+
+            const barWidth = (canvas.width / bufferLength) * 2.5;
+            let barHeight;
+            let x = 0;
+
+            for (let i = 0; i < bufferLength; i++) {
+                barHeight = dataArray[i] * 2; // Độ cao sóng
+                
+                // Màu sóng: Trắng pha chút màu bài hát
+                ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+                
+                // Vẽ thanh sóng từ dưới lên
+                ctx.fillRect(x, canvas.height - barHeight / 2, barWidth, barHeight / 2);
+                x += barWidth + 1;
+            }
+        }
+
+        // Tự chỉnh kích thước Canvas khi xoay màn hình
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+
+        // --- 5. LOGIC PHÁT NHẠC ---
         function loadSong(song) {
             title.innerText = song.name;
             artist.innerText = song.artist;
             audio.src = song.src;
             cover.src = 'https://cdn-icons-png.flaticon.com/512/3321/3321935.png';
-            document.body.style.background = `linear-gradient(to bottom, ${song.color}, #121212)`;
+            
+            // Đặt màu cho các nút bấm theo bài hát
+            document.documentElement.style.setProperty('--primary-color', song.color);
         }
 
         function playSong() {
+            // Kích hoạt Visualizer khi bấm Play lần đầu
+            if (!isAudioContextSetup) {
+                setupAudioContext();
+                drawVisualizer();
+            }
+            if (audioContext && audioContext.state === 'suspended') {
+                audioContext.resume();
+            }
+
             playerContainer.classList.add('playing');
             imgContainer.classList.add('playing');
             playBtn.innerHTML = '<i class="fas fa-pause"></i>';
@@ -144,7 +302,14 @@
             audio.currentTime = (clickX / width) * duration;
         });
 
+        // Tự chuyển bài khi hết
         audio.addEventListener('ended', nextSong);
+
+        // Tự bỏ qua bài lỗi
+        audio.addEventListener('error', function(e) {
+            console.log("Lỗi file nhạc, bỏ qua...");
+            setTimeout(() => { nextSong(); }, 1000);
+        });
 
         // Chạy bài đầu tiên
         loadSong(songs[songIndex]);
