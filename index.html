@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Nhạc Của Quyền</title>
+    <title>Nhạc Của Quyền Auto</title>
     
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#1db954">
@@ -26,7 +26,6 @@
             min-height: 100vh; 
             overflow: hidden; 
             touch-action: none;
-            /* Hiệu ứng nền trôi nhẹ nhàng */
             background-size: 400% 400%;
             animation: gradientBG 15s ease infinite;
         }
@@ -54,21 +53,13 @@
             animation: rotatePlayer 15s linear infinite; animation-play-state: paused; 
             box-shadow: 0 10px 30px rgba(0,0,0,0.5); 
             transition: all 0.3s ease;
-            position: relative;
         }
-        
-        /* Hiệu ứng hào quang khi hát */
-        .img-container.playing { 
-            animation-play-state: running; 
-            box-shadow: 0 0 30px var(--primary-color);
-        }
-        
+        .img-container.playing { animation-play-state: running; box-shadow: 0 0 30px var(--primary-color); }
         .img-container img { width: 100%; height: 100%; object-fit: cover; }
         
-        h2 { font-size: 22px; margin-bottom: 5px; font-weight: 700; text-shadow: 0 2px 4px rgba(0,0,0,0.5); }
+        h2 { font-size: 20px; margin-bottom: 5px; font-weight: 700; text-shadow: 0 2px 4px rgba(0,0,0,0.5); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;}
         h3 { font-size: 14px; color: #ccc; margin-bottom: 25px; font-weight: 400; }
         
-        /* Sóng nhạc giả lập bằng CSS (An toàn cho iPhone) */
         .music-waves {
             display: flex; justify-content: center; align-items: flex-end;
             height: 30px; gap: 4px; margin-bottom: 20px;
@@ -81,79 +72,89 @@
         .bar:nth-child(3) { animation-delay: 0.5s; height: 20px; }
         .bar:nth-child(4) { animation-delay: 0.2s; height: 12px; }
         .bar:nth-child(5) { animation-delay: 0.4s; height: 18px; }
-        
-        @keyframes bounce {
-            0%, 100% { transform: scaleY(1); }
-            50% { transform: scaleY(2.5); }
-        }
+        @keyframes bounce { 0%, 100% { transform: scaleY(1); } 50% { transform: scaleY(2.5); } }
+        @keyframes rotatePlayer { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
 
-        .progress-container { 
-            background: rgba(255,255,255,0.1); border-radius: 10px; cursor: pointer; 
-            margin-bottom: 30px; height: 6px; width: 100%; overflow: hidden; 
-        }
-        .progress { 
-            background: var(--primary-color); border-radius: 10px; height: 100%; width: 0%; 
-            transition: width 0.1s linear; 
-        }
+        .progress-container { background: rgba(255,255,255,0.1); border-radius: 10px; cursor: pointer; margin-bottom: 30px; height: 6px; width: 100%; overflow: hidden; }
+        .progress { background: var(--primary-color); border-radius: 10px; height: 100%; width: 0%; transition: width 0.1s linear; }
         
         .controls { display: flex; justify-content: space-around; align-items: center; width: 80%; margin: 0 auto; }
         .btn { background: none; border: none; color: #ccc; font-size: 26px; cursor: pointer; transition: 0.2s; }
         .btn:hover { color: #fff; transform: scale(1.1); }
-        .btn-big { 
-            font-size: 45px; color: #fff; background: var(--primary-color); 
-            width: 70px; height: 70px; border-radius: 50%; 
-            display: flex; justify-content: center; align-items: center; 
-            box-shadow: 0 5px 20px rgba(0,0,0,0.3); 
-        }
+        .btn-big { font-size: 45px; color: #fff; background: var(--primary-color); width: 70px; height: 70px; border-radius: 50%; display: flex; justify-content: center; align-items: center; box-shadow: 0 5px 20px rgba(0,0,0,0.3); }
         .btn-big:active { transform: scale(0.9); }
-
-        @keyframes rotatePlayer { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
     </style>
 </head>
 <body>
-
     <div class="player-container" id="player-container">
         <div class="music-waves" id="music-waves">
             <div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div>
         </div>
-
         <div class="img-container" id="img-container">
             <img src="https://cdn-icons-png.flaticon.com/512/3321/3321935.png" alt="Cover" id="cover">
         </div>
-        <h2 id="title">Đang tải...</h2>
-        <h3 id="artist">...</h3>
+        
+        <h2 id="title">Đang quét nhạc...</h2>
+        <h3 id="artist">Vui lòng đợi</h3>
         
         <div class="progress-container" id="progress-container">
             <div class="progress" id="progress"></div>
         </div>
-        
         <div class="controls">
             <button class="btn" id="prev"><i class="fas fa-step-backward"></i></button>
             <button class="btn btn-big" id="play"><i class="fas fa-play"></i></button>
             <button class="btn" id="next"><i class="fas fa-step-forward"></i></button>
         </div>
     </div>
-    
     <audio id="audio" playsinline></audio>
 
     <script>
-        // Đăng ký PWA
         if ('serviceWorker' in navigator) { navigator.serviceWorker.register('sw.js').catch(console.log); }
 
-        // --- DANH SÁCH BÀI HÁT CỦA BẠN ---
-        const songs = [
-            { name: 'Bài 1', artist: 'Artist 1', src: 'music/song1.mp3', color: '#8e44ad' },
-            { name: 'Bài 2', artist: 'Artist 2', src: 'music/song2.mp3', color: '#2980b9' },
-            { name: 'Bài 3', artist: 'Artist 3', src: 'music/song3.mp3', color: '#c0392b' },
-            { name: 'Bài 4', artist: 'Artist 4', src: 'music/song4.mp3', color: '#e67e22' },
-            { name: 'Bài 5', artist: 'Artist 5', src: 'music/song5.mp3', color: '#16a085' },
-            { name: 'Bài 6', artist: 'Artist 6', src: 'music/song6.mp3', color: '#2c3e50' },
-            { name: 'Bài 7', artist: 'Artist 7', src: 'music/song7.mp3', color: '#f1c40f' },
-            { name: 'Bài 8', artist: 'Artist 8', src: 'music/song8.mp3', color: '#d35400' },
-            { name: 'Bài 9', artist: 'Artist 9', src: 'music/song9.mp3', color: '#7f8c8d' },
-            { name: 'Bài 10', artist: 'Artist 10', src: 'music/song10.mp3', color: '#27ae60' }
-        ];
+        // --- CẤU HÌNH TỰ ĐỘNG ---
+        const GITHUB_USERNAME = 'maihongquyen'; 
+        const REPO_NAME = 'quyen1223';
+        const FOLDER_NAME = 'music';
+        
+        // API để lấy danh sách file
+        const API_URL = `https://api.github.com/repos/${GITHUB_USERNAME}/${REPO_NAME}/contents/${FOLDER_NAME}`;
 
+        let songs = [];
+        let songIndex = 0;
+
+        // --- HÀM TỰ ĐỘNG QUÉT FILE TRÊN GITHUB ---
+        async function fetchSongs() {
+            try {
+                const response = await fetch(API_URL);
+                const data = await response.json();
+
+                // Lọc ra các file có đuôi .mp3
+                songs = data
+                    .filter(file => file.name.toLowerCase().endsWith('.mp3'))
+                    .map(file => ({
+                        // Tên file: bỏ đuôi .mp3 đi để hiển thị cho đẹp
+                        name: file.name.replace('.mp3', '').replace(/-/g, ' '), 
+                        artist: 'Music Player', // Mặc định
+                        src: file.download_url, // Link trực tiếp từ GitHub
+                        color: randomColor(),
+                        cover: 'https://cdn-icons-png.flaticon.com/512/3321/3321935.png'
+                    }));
+
+                if (songs.length > 0) {
+                    console.log("Đã tìm thấy " + songs.length + " bài hát.");
+                    loadSong(songs[0]);
+                } else {
+                    document.getElementById('title').innerText = "Không tìm thấy nhạc!";
+                    document.getElementById('artist').innerText = "Hãy upload file .mp3 vào folder music";
+                }
+            } catch (error) {
+                console.error("Lỗi:", error);
+                document.getElementById('title').innerText = "Lỗi kết nối!";
+                document.getElementById('artist').innerText = "Không thể tải danh sách";
+            }
+        }
+
+        // --- CÁC HÀM XỬ LÝ NHƯ CŨ ---
         const playerContainer = document.getElementById('player-container');
         const playBtn = document.getElementById('play');
         const prevBtn = document.getElementById('prev');
@@ -167,35 +168,30 @@
         const imgContainer = document.getElementById('img-container');
         const musicWaves = document.getElementById('music-waves');
 
-        let songIndex = 0;
+        function randomColor() {
+            const colors = ['#8e44ad', '#2980b9', '#c0392b', '#e67e22', '#16a085', '#2c3e50', '#d35400', '#7f8c8d'];
+            return colors[Math.floor(Math.random() * colors.length)];
+        }
 
         function loadSong(song) {
             title.innerText = song.name;
             artist.innerText = song.artist;
             audio.src = song.src;
-            // Thay đổi màu chủ đạo theo bài hát
             document.documentElement.style.setProperty('--primary-color', song.color);
             document.body.style.background = `linear-gradient(135deg, ${song.color}, #000)`;
-            cover.src = 'https://cdn-icons-png.flaticon.com/512/3321/3321935.png';
-
-            // --- CẬP NHẬT MÀN HÌNH KHÓA IPHONE ---
+            
             if ('mediaSession' in navigator) {
                 navigator.mediaSession.metadata = new MediaMetadata({
                     title: song.name,
-                    artist: song.artist,
-                    artwork: [{ src: 'https://cdn-icons-png.flaticon.com/512/3321/3321935.png', sizes: '512x512', type: 'image/png' }]
+                    artwork: [{ src: song.cover, sizes: '512x512', type: 'image/png' }]
                 });
-                navigator.mediaSession.setActionHandler('play', playSong);
-                navigator.mediaSession.setActionHandler('pause', pauseSong);
-                navigator.mediaSession.setActionHandler('previoustrack', prevSong);
-                navigator.mediaSession.setActionHandler('nexttrack', nextSong);
             }
         }
 
         function playSong() {
             playerContainer.classList.add('playing');
             imgContainer.classList.add('playing');
-            musicWaves.classList.add('playing'); // Bật sóng nhạc giả lập
+            musicWaves.classList.add('playing');
             playBtn.innerHTML = '<i class="fas fa-pause"></i>';
             audio.play();
         }
@@ -246,7 +242,9 @@
         audio.addEventListener('ended', nextSong);
         audio.addEventListener('error', () => { setTimeout(nextSong, 1000); });
 
-        loadSong(songs[songIndex]);
+        // GỌI HÀM QUÉT NHẠC NGAY KHI MỞ WEB
+        fetchSongs();
+
     </script>
 </body>
 </html>
