@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Nhạc Của Quyền Auto</title>
+    <title>Nhạc Của Quyền Pro Max</title>
     
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#1db954">
@@ -20,14 +20,9 @@
             font-family: 'Inter', sans-serif; 
             background: #121212; 
             color: var(--text-color); 
-            display: flex; 
-            justify-content: center; 
-            align-items: center; 
-            min-height: 100vh; 
-            overflow: hidden; 
-            touch-action: none;
-            background-size: 400% 400%;
-            animation: gradientBG 15s ease infinite;
+            display: flex; justify-content: center; align-items: center; 
+            min-height: 100vh; overflow: hidden; touch-action: none;
+            background-size: 400% 400%; animation: gradientBG 15s ease infinite;
         }
 
         @keyframes gradientBG {
@@ -42,8 +37,7 @@
             backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); 
             border: 1px solid rgba(255, 255, 255, 0.1); 
             width: 350px; padding: 30px; border-radius: 30px; 
-            box-shadow: 0 25px 50px rgba(0,0,0,0.6); 
-            text-align: center; 
+            box-shadow: 0 25px 50px rgba(0,0,0,0.6); text-align: center; 
         }
 
         .img-container { 
@@ -51,27 +45,23 @@
             border-radius: 50%; overflow: hidden; 
             border: 5px solid rgba(255,255,255,0.1); 
             animation: rotatePlayer 15s linear infinite; animation-play-state: paused; 
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5); 
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5); position: relative;
             transition: all 0.3s ease;
         }
         .img-container.playing { animation-play-state: running; box-shadow: 0 0 30px var(--primary-color); }
         .img-container img { width: 100%; height: 100%; object-fit: cover; }
         
-        h2 { font-size: 20px; margin-bottom: 5px; font-weight: 700; text-shadow: 0 2px 4px rgba(0,0,0,0.5); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;}
-        h3 { font-size: 14px; color: #ccc; margin-bottom: 25px; font-weight: 400; }
+        h2 { font-size: 20px; margin-bottom: 5px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;}
+        h3 { font-size: 14px; color: #ccc; margin-bottom: 25px; }
         
+        /* Sóng nhạc CSS (An toàn cho iOS) */
         .music-waves {
             display: flex; justify-content: center; align-items: flex-end;
-            height: 30px; gap: 4px; margin-bottom: 20px;
-            opacity: 0; transition: opacity 0.3s;
+            height: 30px; gap: 4px; margin-bottom: 20px; opacity: 0; transition: opacity 0.3s;
         }
         .music-waves.playing { opacity: 1; }
         .bar { width: 6px; background: var(--primary-color); border-radius: 5px; animation: bounce 1s infinite ease-in-out; }
-        .bar:nth-child(1) { animation-delay: 0.1s; height: 10px; }
-        .bar:nth-child(2) { animation-delay: 0.3s; height: 15px; }
-        .bar:nth-child(3) { animation-delay: 0.5s; height: 20px; }
-        .bar:nth-child(4) { animation-delay: 0.2s; height: 12px; }
-        .bar:nth-child(5) { animation-delay: 0.4s; height: 18px; }
+        .bar:nth-child(1) { animation-delay: 0.1s; height: 10px; } .bar:nth-child(2) { animation-delay: 0.3s; height: 15px; } .bar:nth-child(3) { animation-delay: 0.5s; height: 20px; } .bar:nth-child(4) { animation-delay: 0.2s; height: 12px; } .bar:nth-child(5) { animation-delay: 0.4s; height: 18px; }
         @keyframes bounce { 0%, 100% { transform: scaleY(1); } 50% { transform: scaleY(2.5); } }
         @keyframes rotatePlayer { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
 
@@ -90,11 +80,12 @@
         <div class="music-waves" id="music-waves">
             <div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div>
         </div>
+        
         <div class="img-container" id="img-container">
             <img src="https://cdn-icons-png.flaticon.com/512/3321/3321935.png" alt="Cover" id="cover">
         </div>
         
-        <h2 id="title">Đang quét nhạc...</h2>
+        <h2 id="title">Đang tải nhạc...</h2>
         <h3 id="artist">Vui lòng đợi</h3>
         
         <div class="progress-container" id="progress-container">
@@ -106,55 +97,74 @@
             <button class="btn" id="next"><i class="fas fa-step-forward"></i></button>
         </div>
     </div>
+    
     <audio id="audio" playsinline></audio>
 
     <script>
         if ('serviceWorker' in navigator) { navigator.serviceWorker.register('sw.js').catch(console.log); }
 
-        // --- CẤU HÌNH TỰ ĐỘNG ---
+        const externalSongs = [
+            {
+                name: "Mix Nhạc Dài 2 Tiếng", 
+                artist: "Tuyển Tập", 
+                // 👇 DÁN LINK COX CỦA BẠN VÀO GIỮA DẤU NHÁY NÀY 👇
+                src: "https://files.catbox.moe/ch2s9m.mp3", 
+                color: "#ff5500",
+                cover: "https://cdn-icons-png.flaticon.com/512/3321/3321935.png"
+            }
+        ];
+        
+        // ... Các phần code khác giữ nguyên ...
+
+        // 👇 TÌM VÀ XÓA (HOẶC ẨN) DÒNG NÀY ĐI ĐỂ NHẠC KHÔNG BỊ TỰ ĐỘNG BỎ QUA KHI LỖI 👇
+        // audio.addEventListener('error', () => { setTimeout(nextSong, 1000); });
+        // ------------------------------------------
+
+        // Cấu hình GitHub (Dựa trên ảnh bạn gửi)
         const GITHUB_USERNAME = 'maihongquyen'; 
         const REPO_NAME = 'quyen1223';
         const FOLDER_NAME = 'music';
-        
-        // API để lấy danh sách file
         const API_URL = `https://api.github.com/repos/${GITHUB_USERNAME}/${REPO_NAME}/contents/${FOLDER_NAME}`;
 
         let songs = [];
         let songIndex = 0;
 
-        // --- HÀM TỰ ĐỘNG QUÉT FILE TRÊN GITHUB ---
+        // --- HÀM TỔNG HỢP NHẠC ---
         async function fetchSongs() {
             try {
+                // Lấy nhạc từ GitHub
                 const response = await fetch(API_URL);
                 const data = await response.json();
-
-                // Lọc ra các file có đuôi .mp3
-                songs = data
+                
+                const autoSongs = data
                     .filter(file => file.name.toLowerCase().endsWith('.mp3'))
                     .map(file => ({
-                        // Tên file: bỏ đuôi .mp3 đi để hiển thị cho đẹp
                         name: file.name.replace('.mp3', '').replace(/-/g, ' '), 
-                        artist: 'Music Player', // Mặc định
-                        src: file.download_url, // Link trực tiếp từ GitHub
+                        artist: 'Music Player',
+                        src: file.download_url,
                         color: randomColor(),
                         cover: 'https://cdn-icons-png.flaticon.com/512/3321/3321935.png'
                     }));
 
+                // Gộp nhạc Link ngoài lên đầu danh sách
+                songs = [...externalSongs, ...autoSongs];
+
                 if (songs.length > 0) {
-                    console.log("Đã tìm thấy " + songs.length + " bài hát.");
                     loadSong(songs[0]);
                 } else {
-                    document.getElementById('title').innerText = "Không tìm thấy nhạc!";
-                    document.getElementById('artist').innerText = "Hãy upload file .mp3 vào folder music";
+                    document.getElementById('title').innerText = "Chưa có nhạc!";
                 }
             } catch (error) {
-                console.error("Lỗi:", error);
-                document.getElementById('title').innerText = "Lỗi kết nối!";
-                document.getElementById('artist').innerText = "Không thể tải danh sách";
+                console.error("Lỗi GitHub:", error);
+                // Nếu lỗi GitHub thì vẫn chạy nhạc Drive
+                if (externalSongs.length > 0) {
+                    songs = externalSongs;
+                    loadSong(songs[0]);
+                }
             }
         }
 
-        // --- CÁC HÀM XỬ LÝ NHƯ CŨ ---
+        // --- CÁC HÀM XỬ LÝ PLAYER ---
         const playerContainer = document.getElementById('player-container');
         const playBtn = document.getElementById('play');
         const prevBtn = document.getElementById('prev');
@@ -177,13 +187,18 @@
             title.innerText = song.name;
             artist.innerText = song.artist;
             audio.src = song.src;
-            document.documentElement.style.setProperty('--primary-color', song.color);
-            document.body.style.background = `linear-gradient(135deg, ${song.color}, #000)`;
             
+            // Đổi màu nền & nút bấm
+            const mainColor = song.color || randomColor();
+            document.documentElement.style.setProperty('--primary-color', mainColor);
+            document.body.style.background = `linear-gradient(135deg, ${mainColor}, #000)`;
+            
+            // Cập nhật Lockscreen iPhone
             if ('mediaSession' in navigator) {
                 navigator.mediaSession.metadata = new MediaMetadata({
                     title: song.name,
-                    artwork: [{ src: song.cover, sizes: '512x512', type: 'image/png' }]
+                    artist: song.artist,
+                    artwork: [{ src: song.cover || 'https://cdn-icons-png.flaticon.com/512/3321/3321935.png', sizes: '512x512', type: 'image/png' }]
                 });
             }
         }
@@ -239,10 +254,16 @@
             audio.currentTime = (clickX / width) * duration;
         });
 
+        // Tự chuyển bài khi hết
         audio.addEventListener('ended', nextSong);
-        audio.addEventListener('error', () => { setTimeout(nextSong, 1000); });
+        
+        // Tự bỏ qua nếu lỗi
+        audio.addEventListener('error', () => { 
+            console.log("Lỗi file nhạc, đang chuyển bài...");
+            setTimeout(nextSong, 2000); 
+        });
 
-        // GỌI HÀM QUÉT NHẠC NGAY KHI MỞ WEB
+        // Chạy hàm lấy nhạc
         fetchSongs();
 
     </script>
